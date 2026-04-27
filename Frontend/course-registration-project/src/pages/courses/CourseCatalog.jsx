@@ -1,24 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-export const coursesData = [
-  { id: 1, name: "Database Management Systems", code: "CS301", day: "Mon", time: "09:00-10:30" },
-  { id: 2, name: "Operating Systems", code: "CS302", day: "Tue", time: "10:30-12:00" },
-  { id: 3, name: "Artificial Intelligence & Machine Learning", code: "CS401", day: "Wed", time: "01:00-02:30" },
-  { id: 4, name: "Computer Networks", code: "CS303", day: "Thu", time: "02:30-04:00" },
-  { id: 5, name: "Full Stack Application Development", code: "CS404", day: "Fri", time: "10:30-12:00" },
-  { id: 6, name: "Probability and Statistics", code: "MA201", day: "Mon", time: "01:00-02:30" },
-  { id: 7, name: "Data Structures and Algorithms", code: "CS201", day: "Tue", time: "01:00-02:30" },
-  { id: 8, name: "Cloud Infrastructure", code: "CS405", day: "Wed", time: "09:00-10:30" },
-  { id: 9, name: "Research Methodology", code: "HS301", day: "Thu", time: "01:00-02:30" },
-  { id: 10, name: "Software Engineering", code: "CS304", day: "Fri", time: "01:00-02:30" },
-];
+import { BASE_URL } from "../../config";
 
 export default function CourseCatalog() {
   const [search, setSearch] = useState("");
+  const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
 
-  const filtered = coursesData.filter(c =>
+  useEffect(() => {
+    fetch(`${BASE_URL}/courses`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        const formatted = data.map(c => ({
+          id: c.id,
+          name: c.courseName,
+          instructor: c.facultyName,
+          duration: c.credits,
+          code: c.courseCode,
+          timeSlot: c.timeSlot,
+          credits: c.credits
+        }));
+        setCourses(formatted);
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+  const filtered = courses.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -43,7 +54,9 @@ export default function CourseCatalog() {
             >
               <p className="font-semibold">{course.name}</p>
               <p className="text-sm">{course.code}</p>
-              <p className="text-sm">{course.day} | {course.time}</p>
+              <p className="text-sm">
+                {course.instructor} • {course.duration} Credits
+              </p>
             </div>
           ))}
         </div>
