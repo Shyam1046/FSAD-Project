@@ -1,1 +1,1 @@
-export const BASE_URL = "https://sdp-project-backend-d77d.onrender.com/api";
+export const BASE_URL = "https://sdp-projectbackend-production.up.railway.app/";
